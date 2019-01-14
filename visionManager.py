@@ -9,5 +9,13 @@ class VisionManager:
     def targetChanged(self, table, key, value, isNew):
         if table == 'ip':
             if key == 'target':
+                if value in self.targetDict:
+                    targetFinder = self.targetDict[value]
+                else:
+                    raise("target from sd does not exist!")
+
+                targetFinder.disable()
                 self.visionThread.join()
-                self.visionThread = Thread(target=self.targetDict[value].enable)
+                self.visionThread = Thread(target=targetFinder.enable)
+                self.visionThread.start()
+                
