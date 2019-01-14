@@ -10,7 +10,7 @@ color_cargo_hsv = Color.Color(low=[0, 103, 83], high=[56, 255, 255])
 v = Vision.Vision(camera_port=CAMERA_PORT, color=color_cargo_hsv, filters=[Filters.circle_filter])
 
 conts, img = v.apply_sample(camera_port=CAMERA_PORT)
-print 'found {} contours'.format(len(conts))
+print('found {} contours'.format(len(conts)))
 cv2.imshow('', img)
 cv2.waitKey()
 v.display_contours(img)
