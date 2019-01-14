@@ -3,23 +3,24 @@ from VisionManager import VisionManager
 import logging
 import time
 
-ROBOT_IP = '10.59.90.2'
+ROBOT_IP = '127.0.0.1'
 
 logging.basicConfig(level=logging.DEBUG)
 
 try:
-    visionManager = VisionManager()
+    visionManager = VisionManager(0)
     NetworkTables.initialize(server=ROBOT_IP)
 
     sd = NetworkTables.getTable("SmartDashboard")
-    sd.addEntryLisner(visionManager.targetChanged)
+    sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
     while True:
         time.sleep(1)
+        print(sd.getNumber('robotTime', 999))
 
 
-finally:
-    visionManager.end()
+finally:pass
+    # visionManager.end()
 
 
 
