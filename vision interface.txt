@@ -1,0 +1,4 @@
+"interface" for object finder:
+    enable()
+        starts vision loop. (will be called in separate Thread)
+    
