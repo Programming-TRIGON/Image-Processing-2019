@@ -5,11 +5,11 @@ import cv2
 
 CAMERA_PORT = 0
 
-color_cargo_hsv = Color.Color(low=[0, 103, 83], high=[56, 255, 255])
+some_color = Color.Color(low=[0, 28, 138], high=[40, 255, 255])
 
-v = Vision.Vision(camera_port=CAMERA_PORT, color=color_cargo_hsv, filters=[Filters.circle_filter])
+v = Vision.Vision(camera_port=r'D:\Downloads\img.jpg', color=some_color, filters=[Filters.area_filter()])
 
-conts, img = v.apply_sample(camera_port=CAMERA_PORT)
+conts, img = v.apply_sample(camera_port='D:\Downloads\img.jpg')
 print('found {} contours'.format(len(conts)))
 cv2.imshow('', img)
 cv2.waitKey()
