@@ -4,6 +4,9 @@ class VisionManager:
     visionThread = Thread()
 
     def __init__(self, targets):
+        """
+        :param targets: dictionary of keys and targetFinder classes
+        """
         self.targetDict = targets
 
     def targetChanged(self, table, key, value, isNew):
@@ -18,3 +21,6 @@ class VisionManager:
                 self.visionThread.join()
                 self.visionThread = Thread(target=targetFinder.enable)
                 self.visionThread.start()
+
+    def end(self):
+        self.visionThread.join()

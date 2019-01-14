@@ -5,4 +5,4 @@
         starts vision loop. (will be called in separate Thread)
 
     disable()
-        guess 
+        guess
