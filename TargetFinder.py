@@ -1,4 +1,7 @@
 class TargetFinder:
+    """
+    Each specific target finder class extends TargetFinder
+    """
     def __init__(self, camera_port):
         self.camera_port = camera_port
 

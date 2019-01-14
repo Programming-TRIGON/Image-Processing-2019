@@ -5,7 +5,8 @@ class VisionManager:
 
     def __init__(self, targets):
         """
-        :param targets: dictionary of keys and targetFinder classes
+        Args:
+            targets: dictionary of keys and targetFinder classes
         """
         self.targetDict = targets
 
