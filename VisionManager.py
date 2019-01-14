@@ -15,7 +15,7 @@ class VisionManager:
                 if value in self.targetDict:
                     targetFinder = self.targetDict[value]
                 else:
-                    raise("target from sd does not exist!")
+                    raise KeyError("target from nt does not exist!")
 
                 targetFinder.disable()
                 self.visionThread.join()

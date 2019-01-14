@@ -1,8 +1,0 @@
-"interface" for object finder:
-    __init__(camera-port)
-
-    enable()
-        starts vision loop. (will be called in separate Thread)
-
-    disable()
-        guess
