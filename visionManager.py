@@ -18,4 +18,3 @@ class VisionManager:
                 self.visionThread.join()
                 self.visionThread = Thread(target=targetFinder.enable)
                 self.visionThread.start()
-                
