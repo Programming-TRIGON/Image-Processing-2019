@@ -1,15 +1,16 @@
 from threading import Thread
 
-
 class VisionManager:
     visionThread = Thread()
 
     def __init__(self, targets):
         """
-        Args:
-            targets: dictionary of keys and targetFinder classes
+
+        :param targets: keys and targetFinder classes
+        :type targets: Dictionary
         """
         self.targetDict = targets
+        self.targetFinder = None
 
     def targetChanged(self, table, key, value, isNew):
         """
@@ -27,11 +28,13 @@ class VisionManager:
         :return:
         :rtype:
         """
-        if table == 'ip':
+        print('val changed')
+        print(table, key, value, isNew)
+        if str(table) == 'NetworkTable: /ImageProcessing/':
             if key == 'target':
                 if value in self.targetDict:
-                    self.targetFinder.disable()  # cancel current targetFinder
-                    self.visionThread.join()
+                    print('target is now {}'.format(value))
+                    self.cancelTargetFinder()  # cancel current targetFinder
 
                     self.targetFinder = self.targetDict[value]
                 else:
@@ -41,5 +44,10 @@ class VisionManager:
                 self.visionThread.start()
 
     def end(self):
-        self.targetFinder.disable()
-        self.visionThread.join()
+        self.cancelTargetFinder()
+
+    def cancelTargetFinder(self):
+        if self.targetFinder is not None:
+            self.targetFinder.disable()
+        if self.visionThread.is_alive():
+            self.visionThread.join()
