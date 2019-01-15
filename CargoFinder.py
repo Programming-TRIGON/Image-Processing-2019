@@ -1,32 +1,25 @@
 from TargetFinder import TargetFinder
-from ovl import Vision
-from ovl import Color
-from ovl import Directions
-from ovl import Filters
+from ovl_eshel.Code import Vision
+from ovl_eshel.Code import Color
+from ovl_eshel.Code import Directions
+from ovl_eshel.Code import Filters
 from networktables import NetworkTables
 
 class CargoFinder(TargetFinder):
     cargo_hsv = Color.Color(low=[0, 103, 83], high=[56, 255, 255])
-    test_color = Color.Color(low=[0, 188, 130], high=[50, 255, 255])
+    test_color = Color.Color(low=[0, 69, 149], high=[45, 209, 255])
 
     def __init__(self, camera_port, robot_ip):
         self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
-                                    filters=[Filters.area_filter],
-                                    parameters=[[2000, 68000]],
-                                    directions_function=self.custom_direction)
+                                    filters=[Filters.area_filter, Filters.circle_filter],
+                                    parameters=[[500], []],
+                                    directions_function=Directions.x_center_directions,
+                                    connection_dst=robot_ip, port='ImageProcessing')
 
-        self.vision.connection_address = robot_ip
-        self.vision.connection_type = 'NT'
-        self.vision.network_port = 'vision_results'
-        NetworkTables.initialize(server=robot_ip)
-        self.vision.socket = NetworkTables.getTable('ImageProcessing')
 
     def enable(self):
-        self.vision.start()
+        self.vision.start(print_results=False)
 
     def disable(self):
         self.vision.frame_loop()
 
-    def custom_direction(self, contours, target_amount, *args):
-        print('so far so good')
-        return Directions.x_center_directions(contours, target_amount)
