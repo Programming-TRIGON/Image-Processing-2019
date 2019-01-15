@@ -226,7 +226,7 @@ class Vision(object):
             self.color = color
         else:
             raise TypeError("The color parameter must be a Color or MultiRange object,"
-                             "in order to use a color list use the hsv_high_limit and hsv_low_limit")
+                            "in order to use a color list use the hsv_high_limit and hsv_low_limit")
         # Calibration configuration
         if 'calibration' in kwargs:
             cal_file = kwargs['calibration']
@@ -291,6 +291,12 @@ class Vision(object):
             except gaierror:
                 self.connection_address = False
                 raise ValueError('Cannot Find Roborio, check the connection or the RoboRio name!')
+
+        self.is_running = True
+
+    def stop(self):
+        print('stopped')
+        self.is_running = False
 
     def apply_sorter(self, sorter_function=Sorters.descending_area_sort):
         """
@@ -725,7 +731,7 @@ class Vision(object):
         """
         previous_result = None
         streak = Vision.DoubleStack()
-        while True:
+        while self.is_running:
             old_time = time.time()
             for frame_num in xrange(30):
                 return_val, new_img = self.camera.read()
@@ -798,301 +804,311 @@ class Vision(object):
             port, width, height = 0, self.width, self.height
         if type(self.camera) is not cv2.VideoCapture:
             self.camera_setup(port, img_width=width, img_height=height)
-        while True:
-            self.frame_loop(print_results=print_results)
+        self.is_running = True
+        self.frame_loop(print_results=print_results)
 
-    def __call__(self, **kwargs):
-        self.start(**kwargs)
 
-    def translate_parameters(self):
-        """
-        Translates parameters to a json save-able format, capable of translating Color and MultiColor objects too.
-        :return: the dictionary with the translated parameters for filter functions
-        """
-        param_copy = copy.copy(self.__params)
-        for idx1, param_list in enumerate(param_copy):
-            for idx2, val in enumerate(param_list):
-                if type(val) is Color:
-                    param_copy[idx1][idx2] = Color.json_serialize(val)
-                if type(val) is MultiColor:
-                    param_copy[idx1][idx2] = MultiColor.json_serialize(val)
-        return param_copy
+def __call__(self, **kwargs):
+    self.start(**kwargs)
 
-    def json_serialize(self, pass_camera=False, pass_network=False, pass_calibration=False):
-        """
-        Action: Translates the Vision object to a Json file for transportability
-        :param pass_camera: a bool denoting if the camera parameters (camera port) should be serialized.
-        :param pass_network: a bool denoting if the network parameters and connection information (port, connection type and
-                             destination should be serialized as well.
-        :param pass_calibration: a bool denoting if the calibration parameters (vectors and means) should be serialized.
-        :return: the serialized string in json format.
-        """
-        if type(pass_network) is not bool:
-            pass_network = False
-        if type(pass_camera) is not bool:
-            pass_camera = False
-        if type(pass_calibration) is not bool:
-            pass_calibration = False
-        if type(self.color) is Color:
-            color_object = Color.json_serialize(self.color)
-        elif type(self.color) is MultiColor:
-            color_object = MultiColor.json_serialize(self.color)
-        else:
-            raise TypeError('Color is not a color or MultiColor!')
-        translation = {'color': color_object,
-                       'filters': [f.__name__ for f in self.__filters],
-                       'parameters': self.translate_parameters(),
-                       'directions_function': self.directions.__name__,
-                       'target_amount': self.target_amount,
-                       'width': self.width,
-                       'height': self.height,
-                       'calibration_information': pass_calibration,
-                       'camera_information': pass_camera,
-                       'network_information': pass_network}
-        if pass_camera:
-            translation['camera_port'] = self.camera_port
-        if pass_network:
-            translation['port'] = self.network_port
-            translation['destination'] = self.roborio_name
-            translation['connection_type'] = self.connection_type
-        if pass_calibration:
-            translation['v_vector'] = self.value_weight_vector
-            translation['s_vector'] = self.saturation_weight_vector
 
-        result = json.dumps(translation)
-        return result
+def translate_parameters(self):
+    """
+    Translates parameters to a json save-able format, capable of translating Color and MultiColor objects too.
+    :return: the dictionary with the translated parameters for filter functions
+    """
+    param_copy = copy.copy(self.__params)
+    for idx1, param_list in enumerate(param_copy):
+        for idx2, val in enumerate(param_list):
+            if type(val) is Color:
+                param_copy[idx1][idx2] = Color.json_serialize(val)
+            if type(val) is MultiColor:
+                param_copy[idx1][idx2] = MultiColor.json_serialize(val)
+    return param_copy
 
-    @staticmethod
-    def json_deserialize_secure(json_string):
-        """
-        NOTE: When opening json files acquired from the internet open in first with deserialize secure, if it doesn't
-        return false, you can open it with json deserialize
-        Action: Takes the content of a json file and turns opens it as a Vision Object
-        :param json_string: A string of json data.
-        :return: The dictionary containing the deserialized data (python objects)
-        """
-        deserialized = json.loads(json_string)
-        d = deserialized
-        if type(deserialized) is not dict:
-            return False
 
-        try:
-            color = Color.deserialize(d['color'])
-            if color is False:
-                return False
-            filters = [Vision.get_match(f) for f in d['filters'] if type(f) == str]
-            params = d['parameters']
-            for idx1, parameter_list in enumerate(params):
-                for idx2, val in enumerate(parameter_list):
-                    if type(val) is list:
-                        params[idx1][idx2] = [Color.deserialize(c_object) for c_object in val if type(c_object) is dict]
-                    elif type(val) is dict:
-                        params[idx1][idx2] = Color.deserialize(val)
-            directions = d['directions_function']
-            if type(directions) is False:
-                return False
-            target_amount = d['target_amount']
-            width = d['width']
-            height = d['height']
-            if type(width) is not int:
-                return False
-            if type(height) is not int:
-                return False
-            cam_port = None
-            if d['camera_information'] is True:
-                cam_port = d['camera_port']
-                if not (type(cam_port) is int or cam_port is None):
-                    return False
-            roborio_name = 'NOCONNECTION'
-            port = 9212
-            nw = d['network_information']
-            if nw is True:
-                port = d['port']
-                roborio_name = d['roborio_name']
-                if type(port) is not int:
-                    return False
-                if type(roborio_name) != str:
-                    return False
-        except Exception as e:
-            if e:
-                pass
-            return False
-        if nw:
-            return Vision(color=color,
-                          filters=filters,
-                          directions_function=directions,
-                          port=port,
-                          parameters=params,
-                          camera_port=cam_port,
-                          width=width,
-                          height=height,
-                          connection_dst=roborio_name,
-                          target_amount=target_amount)
-        return Vision(color=color,
-                      filters=filters,
-                      parameters=params,
-                      target_amount=target_amount,
-                      directions_function=directions,
-                      camera_port=cam_port,
-                      width=width,
-                      height=height)
+def json_serialize(self, pass_camera=False, pass_network=False, pass_calibration=False):
+    """
+    Action: Translates the Vision object to a Json file for transportability
+    :param pass_camera: a bool denoting if the camera parameters (camera port) should be serialized.
+    :param pass_network: a bool denoting if the network parameters and connection information (port, connection type and
+                         destination should be serialized as well.
+    :param pass_calibration: a bool denoting if the calibration parameters (vectors and means) should be serialized.
+    :return: the serialized string in json format.
+    """
+    if type(pass_network) is not bool:
+        pass_network = False
+    if type(pass_camera) is not bool:
+        pass_camera = False
+    if type(pass_calibration) is not bool:
+        pass_calibration = False
+    if type(self.color) is Color:
+        color_object = Color.json_serialize(self.color)
+    elif type(self.color) is MultiColor:
+        color_object = MultiColor.json_serialize(self.color)
+    else:
+        raise TypeError('Color is not a color or MultiColor!')
+    translation = {'color': color_object,
+                   'filters': [f.__name__ for f in self.__filters],
+                   'parameters': self.translate_parameters(),
+                   'directions_function': self.directions.__name__,
+                   'target_amount': self.target_amount,
+                   'width': self.width,
+                   'height': self.height,
+                   'calibration_information': pass_calibration,
+                   'camera_information': pass_camera,
+                   'network_information': pass_network}
+    if pass_camera:
+        translation['camera_port'] = self.camera_port
+    if pass_network:
+        translation['port'] = self.network_port
+        translation['destination'] = self.roborio_name
+        translation['connection_type'] = self.connection_type
+    if pass_calibration:
+        translation['v_vector'] = self.value_weight_vector
+        translation['s_vector'] = self.saturation_weight_vector
 
-    @staticmethod
-    def json_deserialize(json_string):
-        """
-        Action: Takes the content of a json file and turns opens it as a Vision Object
-        :param json_string: A string of json data.
-        :return: The dictionary containing the deserialized data (python objects)
-        """
-        deserialized = json.loads(json_string)
-        d = deserialized
+    result = json.dumps(translation)
+    return result
+
+
+@staticmethod
+def json_deserialize_secure(json_string):
+    """
+    NOTE: When opening json files acquired from the internet open in first with deserialize secure, if it doesn't
+    return false, you can open it with json deserialize
+    Action: Takes the content of a json file and turns opens it as a Vision Object
+    :param json_string: A string of json data.
+    :return: The dictionary containing the deserialized data (python objects)
+    """
+    deserialized = json.loads(json_string)
+    d = deserialized
+    if type(deserialized) is not dict:
+        return False
+
+    try:
         color = Color.deserialize(d['color'])
-        filters = [f for f in d['filters'] if type(f) == str]
+        if color is False:
+            return False
+        filters = [Vision.get_match(f) for f in d['filters'] if type(f) == str]
         params = d['parameters']
         for idx1, parameter_list in enumerate(params):
             for idx2, val in enumerate(parameter_list):
                 if type(val) is list:
-                    params[idx1][idx2] = [Color.deserialize(color_obj) for color_obj in val if type(color_obj) is dict]
+                    params[idx1][idx2] = [Color.deserialize(c_object) for c_object in val if type(c_object) is dict]
                 elif type(val) is dict:
                     params[idx1][idx2] = Color.deserialize(val)
         directions = d['directions_function']
+        if type(directions) is False:
+            return False
         target_amount = d['target_amount']
         width = d['width']
         height = d['height']
+        if type(width) is not int:
+            return False
+        if type(height) is not int:
+            return False
         cam_port = None
         if d['camera_information'] is True:
             cam_port = d['camera_port']
+            if not (type(cam_port) is int or cam_port is None):
+                return False
         roborio_name = 'NOCONNECTION'
         port = 9212
         nw = d['network_information']
         if nw is True:
             port = d['port']
             roborio_name = d['roborio_name']
-        nw = d['network_information']
-        if nw:
-            return Vision(color=color,
-                          filters=filters,
-                          directions_function=directions,
-                          parameters=params,
-                          port=port,
-                          camera_port=cam_port,
-                          width=width,
-                          height=height,
-                          connection_dst=roborio_name,
-                          target_amount=target_amount)
+            if type(port) is not int:
+                return False
+            if type(roborio_name) != str:
+                return False
+    except Exception as e:
+        if e:
+            pass
+        return False
+    if nw:
         return Vision(color=color,
                       filters=filters,
-                      parameters=params,
-                      target_amount=target_amount,
                       directions_function=directions,
+                      port=port,
+                      parameters=params,
                       camera_port=cam_port,
                       width=width,
-                      height=height)
+                      height=height,
+                      connection_dst=roborio_name,
+                      target_amount=target_amount)
+    return Vision(color=color,
+                  filters=filters,
+                  parameters=params,
+                  target_amount=target_amount,
+                  directions_function=directions,
+                  camera_port=cam_port,
+                  width=width,
+                  height=height)
 
-    def pack(self, file_path, pass_network, pass_camera, pass_calibration):
-        """
-        Action: serializes and writes the vision object (self) to
-        :param file_path: The path to file where the object should be saved, should be a json file.
-        :param pass_camera: a bool denoting if the camera parameters (camera port) should be serialized.
-        :param pass_network: a bool denoting if the network parameters and connection information (port, connection type
-                             and destination should be serialized as well.
-        :param pass_calibration: a bool denoting if the calibration parameters (vectors and means) should be serialized.
-        :return: True if save and serialize was succesful false otherwise
-        """
-        if file_path.endswith('.json'):
-            with open(file_path, 'w') as f:
-                f.write(self.json_serialize(pass_network=pass_network,
-                                            pass_calibration=pass_calibration,
-                                            pass_camera=pass_camera))
-                f.close()
-            return True
+
+@staticmethod
+def json_deserialize(json_string):
+    """
+    Action: Takes the content of a json file and turns opens it as a Vision Object
+    :param json_string: A string of json data.
+    :return: The dictionary containing the deserialized data (python objects)
+    """
+    deserialized = json.loads(json_string)
+    d = deserialized
+    color = Color.deserialize(d['color'])
+    filters = [f for f in d['filters'] if type(f) == str]
+    params = d['parameters']
+    for idx1, parameter_list in enumerate(params):
+        for idx2, val in enumerate(parameter_list):
+            if type(val) is list:
+                params[idx1][idx2] = [Color.deserialize(color_obj) for color_obj in val if type(color_obj) is dict]
+            elif type(val) is dict:
+                params[idx1][idx2] = Color.deserialize(val)
+    directions = d['directions_function']
+    target_amount = d['target_amount']
+    width = d['width']
+    height = d['height']
+    cam_port = None
+    if d['camera_information'] is True:
+        cam_port = d['camera_port']
+    roborio_name = 'NOCONNECTION'
+    port = 9212
+    nw = d['network_information']
+    if nw is True:
+        port = d['port']
+        roborio_name = d['roborio_name']
+    nw = d['network_information']
+    if nw:
+        return Vision(color=color,
+                      filters=filters,
+                      directions_function=directions,
+                      parameters=params,
+                      port=port,
+                      camera_port=cam_port,
+                      width=width,
+                      height=height,
+                      connection_dst=roborio_name,
+                      target_amount=target_amount)
+    return Vision(color=color,
+                  filters=filters,
+                  parameters=params,
+                  target_amount=target_amount,
+                  directions_function=directions,
+                  camera_port=cam_port,
+                  width=width,
+                  height=height)
+
+
+def pack(self, file_path, pass_network, pass_camera, pass_calibration):
+    """
+    Action: serializes and writes the vision object (self) to
+    :param file_path: The path to file where the object should be saved, should be a json file.
+    :param pass_camera: a bool denoting if the camera parameters (camera port) should be serialized.
+    :param pass_network: a bool denoting if the network parameters and connection information (port, connection type
+                         and destination should be serialized as well.
+    :param pass_calibration: a bool denoting if the calibration parameters (vectors and means) should be serialized.
+    :return: True if save and serialize was succesful false otherwise
+    """
+    if file_path.endswith('.json'):
+        with open(file_path, 'w') as f:
+            f.write(self.json_serialize(pass_network=pass_network,
+                                        pass_calibration=pass_calibration,
+                                        pass_camera=pass_camera))
+            f.close()
+        return True
+    else:
+        return False
+
+
+NC_NUMERAL = 'numeral'
+NC_TIME = 'time'
+
+
+def display_contours(self, img, amount=0, color=None, save_path=None):
+    """
+    Action: Displays the image with the current list of contours
+    :param img: image from which the contours were taken from, numpy array or image path
+    :param color: the color of the of the contours outline
+    :param amount: amount of contours to display
+    :param save_path: if the image should be saved, pass the wanted result path
+    :return: the image with the drawn contours.
+    """
+    if type(img) is str:
+        img = cv2.imread(img)
+    image_for_display = copy.copy(img)
+    if self.contour_amount > 0:
+        if amount > 0:
+            output_contours = self.contours[0:amount]
         else:
-            return False
+            output_contours = self.contours
 
-    NC_NUMERAL = 'numeral'
-    NC_TIME = 'time'
+        if type(output_contours) is not list:
+            output_contours = [output_contours]
+        if color is None:
+            color = (0, 0, 0)
+        cv2.drawContours(image_for_display, output_contours, -1, color, 2)
+    if type(save_path) is str:
+        cv2.imwrite(save_path, image_for_display)
+    display_image(image_for_display)
+    return image_for_display
 
-    def display_contours(self, img, amount=0, color=None, save_path=None):
-        """
-        Action: Displays the image with the current list of contours
-        :param img: image from which the contours were taken from, numpy array or image path
-        :param color: the color of the of the contours outline
-        :param amount: amount of contours to display
-        :param save_path: if the image should be saved, pass the wanted result path
-        :return: the image with the drawn contours.
-        """
-        if type(img) is str:
-            img = cv2.imread(img)
-        image_for_display = copy.copy(img)
-        if self.contour_amount > 0:
-            if amount > 0:
-                output_contours = self.contours[0:amount]
+
+def photo_array(self, amount, delay=3, name_convention=NC_TIME, return_images=False, path=False):
+    """
+    Action: Takes a series of images with a delay between shots and saves them.
+    :param amount: the amount of images to take
+    :param delay: the delay between images
+    :param name_convention: the naming convention to save the pictures
+    :param return_images: a boolean to denote if the image objects should be returned
+    :param path: if images should be saved in a specific folder
+    :return: if return images is true, returns the images
+    """
+    if self.camera is None:
+        self.camera_setup()
+    images = []
+    image_num = 0
+    while image_num < amount:
+        ret, img = self.camera.read()
+        if ret:
+            images.append(img)
+            if name_convention is Vision.NC_TIME:
+                save_name = 'image@ '.replace('@', str(image_num)) + \
+                            str(time.strftime('%a%d%b%Y%H:%M:%S', time.gmtime()))
+            elif name_convention is Vision.NC_NUMERAL:
+                save_name = 'image@'.replace('@', str(image_num))
             else:
-                output_contours = self.contours
-
-            if type(output_contours) is not list:
-                output_contours = [output_contours]
-            if color is None:
-                color = (0, 0, 0)
-            cv2.drawContours(image_for_display, output_contours, -1, color, 2)
-        if type(save_path) is str:
-            cv2.imwrite(save_path, image_for_display)
-        display_image(image_for_display)
-        return image_for_display
-
-    def photo_array(self, amount, delay=3, name_convention=NC_TIME, return_images=False, path=False):
-        """
-        Action: Takes a series of images with a delay between shots and saves them.
-        :param amount: the amount of images to take
-        :param delay: the delay between images
-        :param name_convention: the naming convention to save the pictures
-        :param return_images: a boolean to denote if the image objects should be returned
-        :param path: if images should be saved in a specific folder
-        :return: if return images is true, returns the images
-        """
-        if self.camera is None:
-            self.camera_setup()
-        images = []
-        image_num = 0
-        while image_num < amount:
-            ret, img = self.camera.read()
-            if ret:
-                images.append(img)
-                if name_convention is Vision.NC_TIME:
-                    save_name = 'image@ '.replace('@', str(image_num)) + \
-                                str(time.strftime('%a%d%b%Y%H:%M:%S', time.gmtime()))
-                elif name_convention is Vision.NC_NUMERAL:
-                    save_name = 'image@'.replace('@', str(image_num))
+                save_name = str(name_convention) + str(image_num)
+            if path:
+                save_name = str(path) + save_name
+            cv2.imwrite(save_name, img)
+            while True:
+                cv2.imshow('', img)
+                key = cv2.waitKey(delay)
+                if key == ord('y'):
+                    amount += 1
+                    break
+                elif key == ord('n'):
+                    break
                 else:
-                    save_name = str(name_convention) + str(image_num)
-                if path:
-                    save_name = str(path) + save_name
-                cv2.imwrite(save_name, img)
-                while True:
-                    cv2.imshow('', img)
-                    key = cv2.waitKey(delay)
-                    if key == ord('y'):
-                        amount += 1
-                        break
-                    elif key == ord('n'):
-                        break
-                    else:
-                        pass
+                    pass
 
-        if return_images:
-            return images
-        else:
-            del images
+    if return_images:
+        return images
+    else:
+        del images
 
-    def rasses_vanegev(self, amount, delay=3, name_convention=NC_TIME, return_images=False, path=False):
-        """
-        Action: Takes a series of images with a delay between shots and saves them.
-        :param self: a vision object
-        :param amount: the amount of images to take
-        :param delay: the delay between images
-        :param name_convention: the naming convention to save the pictures
-        :param return_images: a boolean to denote if the image objects should be returned
-        :param path: if images should be saved in a specific folder
-        :return: if return images is true, returns the images
-        """
-        return self.photo_array(amount, delay, name_convention, return_images, path)
+
+def rasses_vanegev(self, amount, delay=3, name_convention=NC_TIME, return_images=False, path=False):
+    """
+    Action: Takes a series of images with a delay between shots and saves them.
+    :param self: a vision object
+    :param amount: the amount of images to take
+    :param delay: the delay between images
+    :param name_convention: the naming convention to save the pictures
+    :param return_images: a boolean to denote if the image objects should be returned
+    :param path: if images should be saved in a specific folder
+    :return: if return images is true, returns the images
+    """
+    return self.photo_array(amount, delay, name_convention, return_images, path)
