@@ -1,8 +1,8 @@
 from TargetFinder import TargetFinder
-from ovl import Vision
-from ovl import Color
-from ovl import Directions
-from ovl import Filters
+from ovl_eshel.Code import Vision
+from ovl_eshel.Code import Color
+from ovl_eshel.Code import Directions
+from ovl_eshel.Code import Filters
 from networktables import NetworkTables
 
 class CargoFinder(TargetFinder):
@@ -13,13 +13,9 @@ class CargoFinder(TargetFinder):
         self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
                                     filters=[Filters.area_filter],
                                     parameters=[[2000, 68000]],
-                                    directions_function=self.custom_direction)
+                                    directions_function=Directions.x_center_directions,
+                                    connection_dst=robot_ip, port='ImageProcessing')
 
-        self.vision.connection_address = robot_ip
-        self.vision.connection_type = 'NT'
-        self.vision.network_port = 'vision_results'
-        NetworkTables.initialize(server=robot_ip)
-        self.vision.socket = NetworkTables.getTable('ImageProcessing')
 
     def enable(self):
         self.vision.start()
