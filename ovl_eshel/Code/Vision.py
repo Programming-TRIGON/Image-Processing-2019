@@ -789,6 +789,7 @@ class Vision(object):
         :param kwargs:
         :return: None
         """
+        print_results = kwargs.get('print_results', False)
         if "camera" in kwargs:
             port, width, height = kwargs["camera"]
         elif "cam" in kwargs:
@@ -798,7 +799,7 @@ class Vision(object):
         if type(self.camera) is not cv2.VideoCapture:
             self.camera_setup(port, img_width=width, img_height=height)
         while True:
-            self.frame_loop()
+            self.frame_loop(print_results=print_results)
 
     def __call__(self, **kwargs):
         self.start(**kwargs)
