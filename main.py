@@ -8,7 +8,7 @@ ROBOT_IP = '127.0.0.1'
 
 logging.basicConfig(level=logging.DEBUG)
 targetFinders = {
-    'cargo': CargoFinder(0)
+    'cargo': CargoFinder(0, ROBOT_IP)
 }
 
 try:
