@@ -7,7 +7,7 @@ from networktables import NetworkTables
 
 class CargoFinder(TargetFinder):
     cargo_hsv = Color.Color(low=[0, 103, 83], high=[56, 255, 255])
-    test_color = Color.Color(low=[147, 92, 46], high=[179, 255, 168])
+    test_color = Color.Color(low=[0, 188, 130], high=[50, 255, 255])
 
     def __init__(self, camera_port, robot_ip):
         self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
@@ -28,4 +28,5 @@ class CargoFinder(TargetFinder):
         self.vision.frame_loop()
 
     def custom_direction(self, contours, target_amount, *args):
+        print('so far so good')
         return Directions.x_center_directions(contours, target_amount)
