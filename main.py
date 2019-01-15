@@ -8,7 +8,7 @@ ROBOT_IP = '127.0.0.1'
 logging.basicConfig(level=logging.DEBUG)
 
 try:
-    visionManager = VisionManager(0)
+    visionManager = VisionManager()
     NetworkTables.initialize(server=ROBOT_IP)
 
     sd = NetworkTables.getTable("SmartDashboard")
@@ -19,8 +19,9 @@ try:
         print(sd.getNumber('robotTime', 999))
 
 
-finally:pass
-    # visionManager.end()ghj['[pkhm k,
+finally:
+    pass
+    # visionManager.end()
 
 
 

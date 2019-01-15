@@ -1,5 +1,7 @@
 # Created by https://www.gitignore.io/api/java,eclipse
 
+__pycache__/
+
 ### PyCharm ##
 .idea/
 

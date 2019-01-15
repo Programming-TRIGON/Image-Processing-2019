@@ -1,5 +1,6 @@
 from threading import Thread
 
+
 class VisionManager:
     visionThread = Thread()
 
@@ -11,6 +12,21 @@ class VisionManager:
         self.targetDict = targets
 
     def targetChanged(self, table, key, value, isNew):
+        """
+        This method handles the thread running the processing. When the target is changed in the NT (presumably by the
+        robot), this method will cancel the current :func:`TargetFinder  <TargetFinder.TargetFinder>`
+        and run the new one.
+        :param table:
+        :type table:
+        :param key:
+        :type key:
+        :param value:
+        :type value:
+        :param isNew:
+        :type isNew:
+        :return:
+        :rtype:
+        """
         if table == 'ip':
             if key == 'target':
                 if value in self.targetDict:
