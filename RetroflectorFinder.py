@@ -13,16 +13,19 @@ class RetroflectorFinder(TargetFinder):
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
         self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
-                                    filters=[Filters.area_filter, self.reflector_filter],
-                                    parameters=[[500], []],
+                                    filters=[Filters.area_filter,
+                                             Filters.rotated_rectangle_filter,
+                                             self.reflector_filter],
+                                    parameters=[[500],
+                                                [RetroflectorConstants.rotated_rec_min_ratio], []],
                                     directions_function=,
                                     connection_dst=robot_ip, port='ImageProcessing')
 
-    def reflector_filter(self, contours):
-        rotated, _ = Filters.rotated_rectangle_filter(contours, RetroflectorConstants.rotated_rec_min_ratio)
+    def reflector_filter(self, rotated):
         rotated.sort(key=lambda cont: cv2.minAreaRect(cont)[0][0])
-
         results = []
+
+        # 
         for i in range(0, len(rotated) - 1):
             left = rotated[i]
             right = rotated[i + 1]
