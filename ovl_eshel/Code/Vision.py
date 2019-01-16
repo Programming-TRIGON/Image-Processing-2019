@@ -12,6 +12,7 @@ import cv2
 import json
 from networktables import NetworkTables
 from sys import version_info
+import numpy as np
 
 if version_info[0] == 3:
     xrange = range
@@ -1032,14 +1033,15 @@ class Vision(object):
         image_for_display = copy.copy(img)
         if self.contour_amount > 0:
             if amount > 0:
-                output_contours = self.contours[0:amount]
+                output_contours = self.contours[0:amount].copy()
             else:
-                output_contours = self.contours
+                output_contours = self.contours.copy()
 
             if type(output_contours) is not list:
                 output_contours = [output_contours]
             if color is None:
                 color = (0, 0, 0)
+            output_contours = np.array(output_contours).reshape((-1, 1, 2)).astype(np.int32)
             cv2.drawContours(image_for_display, output_contours, -1, color, 2)
         if type(save_path) is str:
             cv2.imwrite(save_path, image_for_display)
