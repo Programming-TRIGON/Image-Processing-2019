@@ -20,7 +20,8 @@ def validate(contour, target_amount):
     else:
         return True
 
-def alert_directions(contour, targer_amount, img_size=(320, 240)):
+
+def alert_directions(contour, target_amount, img_size=(320, 240)):
     width, height = img_size
     if validate(contour, target_amount):
         return '1'

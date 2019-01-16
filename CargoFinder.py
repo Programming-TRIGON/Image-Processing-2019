@@ -16,7 +16,7 @@ class CargoFinder(TargetFinder):
                                     filters=[Filters.area_filter, Filters.circle_filter],
                                     parameters=[[500], []],
                                     directions_function=Directions.x_center_directions,
-                                    connection_dst=robot_ip, port='ImageProcessing')
+                                    connection_dst=robot_ip, port='CargoDirection')
 
     def enable(self):
         self.vision.start(print_results=False)
