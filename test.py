@@ -2,12 +2,15 @@ from ovl_eshel.Code import Vision
 from ovl_eshel.Code import Color
 from ovl_eshel.Code import Filters
 import cv2
+from HatchFinder import HatchVisionProcessing
+import time
 
 
 def size_filter(contour_list):
     output = contour_list
     output.sort(key=lambda contour: cv2.contourArea(contour))
-    return output[len(output)-1::]
+    return output[len(output) - 1::]
+
 
 def solidity_filter(contour_list, solidity):
     output = []
@@ -22,13 +25,19 @@ def solidity_filter(contour_list, solidity):
     return output
 
 
-CAMERA_PORT = 0
+CAMERA_PORT = 1
+ROBOT_IP = '127.0.0.1'
 
+# hatch_finder = HatchVisionProcessing(CAMERA_PORT, ROBOT_IP)
+# hatch_finder.enable()
+# time.sleep(20)
+# hatch_finder.disable()
 some_color = Color.Color(low=[21, 131, 124], high=[27, 255, 255])
-
+some_color2 = Color.Color(low=[10, 165, 149], high=[19, 255, 255])
+#
 v = Vision.Vision(camera_port=1, color=some_color,
                   filters=[Filters.area_filter, size_filter], parameters=[[200], []])
-
+#
 conts, img = v.apply_sample(camera_port=1)
 print('found {} contours'.format(len(conts)))
 v.display_contours(img)

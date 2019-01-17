@@ -14,7 +14,7 @@ class CargoFinder(TargetFinder):
         super().__init__(camera_port)
         self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
                                     filters=[Filters.area_filter, Filters.circle_filter],
-                                    parameters=[[500], []],
+                                    parameters=[[250], [0.6]],
                                     directions_function=Directions.x_center_directions,
                                     connection_dst=robot_ip, port='CargoDirection')
 

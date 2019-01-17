@@ -25,5 +25,5 @@ sd = NetworkTables.getTable("ImageProcessing")
 
 time.sleep(3)
 while True:
-    keyVal = raw_input('input smthn	').split(', ')
+    keyVal = input('input smthn	').split(', ')
     sd.putString(keyVal[0], keyVal[1])	

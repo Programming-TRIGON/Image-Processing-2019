@@ -3,14 +3,16 @@ from VisionManager import VisionManager
 import logging
 import time
 from CargoFinder import CargoFinder
-from RetroflectorFinder import RetroflectorFinder
+# from RetroflectorFinder import RetroflectorFinder
+from HatchFinder import HatchVisionProcessing
 
 ROBOT_IP = '127.0.0.1'
 
 logging.basicConfig(level=logging.DEBUG)
 targetFinders = {
-    'cargo': CargoFinder(0, ROBOT_IP),
-    'retro': RetroflectorFinder(0, ROBOT_IP)
+    'cargo': CargoFinder(1, ROBOT_IP),
+    # 'retro': RetroflectorFinder(0, ROBOT_IP),
+    'hatch': HatchVisionProcessing(1, ROBOT_IP)
 }
 
 try:
