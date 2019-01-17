@@ -21,14 +21,14 @@ class RetroflectorFinder(TargetFinder):
                                     directions_function=,
                                     connection_dst=robot_ip, port='ImageProcessing')
 
-    def reflector_filter(self, rotated):
-        rotated.sort(key=lambda cont: cv2.minAreaRect(cont)[0][0])
+    def reflector_filter(self, rotated_contour):
+        rotated_contour.sort(key=lambda cont: cv2.minAreaRect(cont)[0][0])
         results = []
 
-        # 
-        for i in range(0, len(rotated) - 1):
-            left = rotated[i]
-            right = rotated[i + 1]
+        # find reflectors by pairs - each pair has one positive and one negatively angled reflector
+        for i in range(0, len(rotated_contour) - 1):
+            left = rotated_contour[i]
+            right = rotated_contour[i + 1]
 
             left_angle = cv2.minAreaRect(left)[2]
             right_angle = cv2.minAreaRect(right)[2]

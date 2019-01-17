@@ -1041,6 +1041,9 @@ class Vision(object):
                 output_contours = [output_contours]
             if color is None:
                 color = (0, 0, 0)
+
+            # output_contours = np.array(output_contours).reshape((-1, 1, 2)).astype(np.int32)
+
             cv2.drawContours(image_for_display, output_contours, -1, color, 2)
         if type(save_path) is str:
             cv2.imwrite(save_path, image_for_display)
