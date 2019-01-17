@@ -14,7 +14,7 @@ class HatchVisionProcessing(TargetFinder):
         hatch_color = Color.Color(low=[21, 131, 124], high=[27, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=hatch_color,
                                     filters=[Filters.area_filter, size_filter], parameters=[[200], []],
-                                    directions_function=Directions.x_center_directions, target_amount=4,
+                                    directions_function=Directions.x_center_directions, target_amount=1,
                                     connection_dst=robot_ip, port='HatchDirection')
 
     def enable(self):
