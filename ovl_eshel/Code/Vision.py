@@ -322,7 +322,7 @@ class Vision(object):
         else:
             pass
 
-    def apply_filter(self, filter_function, apply_results=False, parameters=None):
+    def apply_filter(self, filter_function, apply_results=False, parameters=None, print_results=False):
         """
         Action: applies a filter function of the contour list
         :param filter_function: Filter functions are function with a contour list variable that apply some
@@ -335,8 +335,8 @@ class Vision(object):
          is in addition to the.
         :return: returns the output of the filter function.
         """
-
-        print_pipe(self.log_path,
+        if print_results:
+            print_pipe(self.log_path,
                    'Before "%": '.replace('%', filter_function.__name__.replace('_', ' ')) + str(len(self.contours)))
         if self.__params is not None or parameters is not None:
             if parameters is not None:
@@ -362,10 +362,11 @@ class Vision(object):
             if type(output) not in (list, ndarray):
                 raise TypeError("Filter function must return a contour or a contour list!")
             self.contours = output
-        print_pipe(self.log_path, 'After %: '.replace('%', filter_function.__name__) + str(len(output)))
+        if print_results:
+            print_pipe(self.log_path, 'After %: '.replace('%', filter_function.__name__) + str(len(output)))
         return output, ratio
 
-    def apply_all_filters(self, apply_all=True):
+    def apply_all_filters(self, apply_all=True, print_results=False):
         """
         Action: Applies all of the filters on the
         :param apply_all: A Boolean that determines whether or not apply all filters.
@@ -374,10 +375,10 @@ class Vision(object):
         all_ratios = []
         for idx, filter_func in enumerate(self.__filters):
             if self.__params is not None:
-                _, ratio = self.apply_filter(filter_func, apply_results=apply_all, parameters=self.__params[idx])
+                _, ratio = self.apply_filter(filter_func, apply_results=apply_all, parameters=self.__params[idx], print_results=print_results)
                 all_ratios.append(ratio)
             else:
-                _, ratio = self.apply_filter(filter_func, apply_results=apply_all)
+                _, ratio = self.apply_filter(filter_func, apply_results=apply_all, print_results=print_results)
                 all_ratios.append(ratio)
 
         return all_ratios
@@ -719,7 +720,7 @@ class Vision(object):
         else:
             print_pipe(self.log_path, 'Failed to get image')
 
-    def frame_loop(self, apply_all=True, one_loop=False, print_results=True,
+    def frame_loop(self, apply_all=True, one_loop=False, print_results=False,
                    send_direction=True, amend=True):
         """
         Action: frame loop: Takes an image, finds contours, applies all filters and sorters, finds direction and sends

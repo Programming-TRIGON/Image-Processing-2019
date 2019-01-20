@@ -36,7 +36,7 @@ def solidity_filter(contour_list, solidity):
     return output
 
 
-def size_filter( contour_list):
+def size_filter(contour_list):
     output = contour_list
     output.sort(key=lambda contour: cv2.contourArea(contour))
     return output[len(output) - 1::]
