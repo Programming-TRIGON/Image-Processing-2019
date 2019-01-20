@@ -173,6 +173,7 @@ class Vision(object):
         :param kwargs: The optional key word arguments are: 
                        parameters for specific parameters for filter functions,
         """
+        self.connection_type = 'NT'
         if log_file is not None:
             self.log_path = log_file
             if type(self.log_path) not in (str, bool, type(None)):
@@ -282,11 +283,11 @@ class Vision(object):
             except Exception as e:
                 print_pipe(self.log_path, 'Failed to connect.', e)
         else:
-            if 0 < port < 65535:
-                self.network_port = port
-            else:
-                self.network_port = 0
-                raise TypeError("Invalid port number!")
+            # if 0 < port < 65535:
+            #     self.network_port = port
+            # else:
+            #     self.network_port = 0
+            #     raise TypeError("Invalid port number!")
             try:
                 self.connection_address = gethostbyname(connection_dst)
             except gaierror:
