@@ -11,11 +11,11 @@ class HatchVisionProcessing(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        hatch_color = Color.Color(low=[0, 0, 193], high=[38, 255, 255])
+        hatch_color = Color.Color(low=[0, 50, 131], high=[44, 143, 244])
         self.vision = Vision.Vision(camera_port=camera_port, color=hatch_color,
-                                    filters=[Filters.area_filter, Filters.circle_filter, size_filter],
-                                    parameters=[[200], [], []],
-                                    directions_function=Directions.x_center_directions, target_amount=1,
+                                    filters=[Filters.area_filter, size_filter],
+                                    parameters=[[200], []],
+                                    directions_function=Directions.xy_center_directions, target_amount=1,
                                     connection_dst=robot_ip, port='HatchDirection')
 
     def enable(self):
@@ -41,4 +41,6 @@ def size_filter(contour_list):
     output = contour_list
     output.sort(key=lambda contour: cv2.contourArea(contour))
     return output[len(output) - 1::]
+
+
 

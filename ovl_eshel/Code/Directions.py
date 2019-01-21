@@ -49,7 +49,7 @@ def xy_center_directions(contour, target_amount, img_size=(320, 240), invert=Fal
     y_res *= y_ratio
     if invert:
         return str(2000 - x_res) + str(2000 - y_res)
-    return str(x_res) + str(y_res)
+    return str(x_res) + ' ' + str(y_res)
 
 
 def y_center_directions(contour, target_amount, img_size=(320, 240), invert=False):
