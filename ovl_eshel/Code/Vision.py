@@ -17,6 +17,9 @@ import numpy as np
 if version_info[0] == 3:
     xrange = range
 
+# TODO create a network object to handle all the networking as opposed to it being integrated into the Vision Class
+# TODO add camera disconnection/reconnection handler
+
 
 def display_image(image, win_name='image', resizable=False):
     """
@@ -109,6 +112,7 @@ class Vision(object):
         :param ip: the ip to be checked, a str
         :return: True if the ip is an FRC static ip, False if it isn't
         """
+        # TODO reimplement with regex
         if type(ip) != str:
             return False
         if len(ip) == 10:
@@ -161,6 +165,7 @@ class Vision(object):
     def __init__(self, color=None, filters=None, directions_function=None, target_amount=1, width=320,
                  height=240,
                  connection_dst='NOCONNECTION', port=None, log_file=None, **kwargs):
+
         """
         Action: The vision object represents a control object to the whole process of the vision processing
         it receives  a list of filter functions, a directions function, the connection destination address,
@@ -173,7 +178,9 @@ class Vision(object):
         :param kwargs: The optional key word arguments are: 
                        parameters for specific parameters for filter functions,
         """
-        self.connection_type = 'NT'
+
+        self.connection_type = 'NT' # added cus whoever wrote this did't think tou much...
+
         if log_file is not None:
             self.log_path = log_file
             if type(self.log_path) not in (str, bool, type(None)):
@@ -183,19 +190,20 @@ class Vision(object):
         else:
             self.log_path = None
 
-        self.width = width
-        self.height = height
         if type(width) != int:
             raise TypeError('The width of images taken must be an integer')
         if type(height) != int:
             raise TypeError('The width of images taken must be an integer')
+        self.width = width
+        self.height = height
 
         if filters is None:
             self.__filters = []
         else:
             self.__filters = filters
-            if len(filters) == 0:
-                print_pipe(self.log_path, "No filters given, Using raw contour result.")
+        if len(filters) == 0:
+            print_pipe(self.log_path, "No filters given, Using raw contour result.")
+
         if "parameters" in kwargs:
             self.__params = kwargs['parameters']
         elif "params" in kwargs:
@@ -204,6 +212,8 @@ class Vision(object):
             self.__params = None
 
         target_amount = int(target_amount)
+
+        # this is totally redundant
         if type(target_amount) is not int:
             self.target_amount = 1
         elif target_amount <= 0:
@@ -218,6 +228,7 @@ class Vision(object):
         self.camera_port = None
         if 'camera_port' in kwargs:
             self.camera_setup(kwargs['camera_port'])
+
         self.directions = directions_function
 
         if type(color) is Color:
@@ -229,6 +240,7 @@ class Vision(object):
         else:
             raise TypeError("The color parameter must be a Color or MultiRange object,"
                             "in order to use a color list use the hsv_high_limit and hsv_low_limit")
+
         # Calibration configuration
         if 'calibration' in kwargs:
             cal_file = kwargs['calibration']
@@ -258,10 +270,10 @@ class Vision(object):
 
         # Network related configurations
         self.hostname = connection_dst
-        if connection_dst == 'NOCONNECTION':
-            self.connection_address = None
-            self.network_port = 0
-        elif Vision.is_valid_ip(connection_dst):
+        # if connection_dst == 'NOCONNECTION':
+        #     self.connection_address = None
+        #     self.network_port = 0
+        if Vision.is_valid_ip(connection_dst):
             # FIX
             # was is_static_ip, but then i can't use a local ip for testing
             self.connection_address = connection_dst
@@ -269,30 +281,25 @@ class Vision(object):
             self.socket = NetworkTables.getTable('SmartDashboard')
             self.connection_type = 'NT'
             self.network_port = port
-        elif connection_dst is None:
-            self.connection_address = None
-        elif Vision.is_valid_ip(connection_dst):
-            if 0 < port < 65535:
-                self.network_port = port
-            else:
-                self.network_port = 0
-                raise TypeError("Invalid port number!")
-            try:
-                self.connection_address = connection_dst
-                self.socket.bind((connection_dst, port))
-            except Exception as e:
-                print_pipe(self.log_path, 'Failed to connect.', e)
         else:
-            # if 0 < port < 65535:
-            #     self.network_port = port
-            # else:
-            #     self.network_port = 0
-            #     raise TypeError("Invalid port number!")
-            try:
-                self.connection_address = gethostbyname(connection_dst)
-            except gaierror:
-                self.connection_address = False
-                raise ValueError('Cannot Find Roborio, check the connection or the RoboRio name!')
+            raise ValueError("connection_dst must be a valid ip address")
+        # elif Vision.is_valid_ip(connection_dst):
+        #     if 0 < port < 65535:
+        #         self.network_port = port
+        #     else:
+        #         self.network_port = 0
+        #         raise TypeError("Invalid port number!")
+        #     try:
+        #         self.connection_address = connection_dst
+        #         self.socket.bind((connection_dst, port))
+        #     except Exception as e:
+        #         print_pipe(self.log_path, 'Failed to connect.', e)
+        # else:
+        #     try:
+        #         self.connection_address = gethostbyname(connection_dst)
+        #     except gaierror:
+        #         self.connection_address = False
+        #         raise ValueError('Cannot Find Roborio, check the connection or the RoboRio name!')
 
         self.is_running = True
 
@@ -584,7 +591,7 @@ class Vision(object):
         self.camera_port = port
         robot_cam = cv2.VideoCapture(port)
         # If there was a problem opening the camera, exit
-        if robot_cam.isOpened() is False:
+        if not robot_cam.isOpened():
             raise Exception("An error has occurred! "
                             "cv2.VideoCapture returned None (Camera object unsuccessfully opened!")
         # Checks in which cv version we use and adjusts accordingly
@@ -598,8 +605,8 @@ class Vision(object):
             robot_cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, img_width)
             robot_cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, img_height)
         else:
-            raise VersionError("This code works with version 2 and 3 of openCV!"
-                               " Please make sure you are using one of those versions")
+            raise VersionError("This code works with version 2, 3 and 4 of openCV!"
+                               "Please make sure you are using one of those versions")
         self.camera = robot_cam
         return robot_cam
 
@@ -652,6 +659,7 @@ class Vision(object):
         else:
             display = None
 
+        # TODO shouldn't need to give it a cam port. Vision has a camera property!
         if "camera_port" in kwargs:
             port = kwargs["camera_port"]
             contours, img = cam_port_activate(port, color_object, self.width, self.height)
@@ -682,6 +690,7 @@ class Vision(object):
                 cv2.waitKey()
         return contours, img
 
+    # What the hell is this for?
     class DoubleStack:
         def __init__(self):
             self.class1 = 0
