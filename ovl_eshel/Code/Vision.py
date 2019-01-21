@@ -323,7 +323,8 @@ class Vision(object):
         :return: True if data was successfully sent, False if not.
         """
         if self.connection_type == Vision.NT_CONNECTION:
-            self.socket.putNumber(self.network_port, data)
+            self.socket.putString(self.network_port, data)
+            # changed from putNumber to putString
         elif self.connection_type == Vision.UDP_CONNECTION:
             self.socket.sendto(str(data), (self.connection_address, self.network_port))
         else:
@@ -727,6 +728,7 @@ class Vision(object):
             r = self.apply_all_filters(apply_all)
             return self.contours, r
         else:
+            self.camera_setup(self.camera_port)
             print_pipe(self.log_path, 'Failed to get image')
 
     def frame_loop(self, apply_all=True, one_loop=False, print_results=False,
