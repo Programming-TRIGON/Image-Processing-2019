@@ -11,7 +11,7 @@ class HatchVisionProcessing(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        hatch_color = Color.Color(low=[21, 131, 124], high=[27, 255, 255])
+        hatch_color = Color.Color(low=[0, 0, 193], high=[38, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=hatch_color,
                                     filters=[Filters.area_filter, size_filter], parameters=[[200], []],
                                     directions_function=Directions.x_center_directions, target_amount=1,
@@ -36,7 +36,7 @@ def solidity_filter(contour_list, solidity):
     return output
 
 
-def size_filter( contour_list):
+def size_filter(contour_list):
     output = contour_list
     output.sort(key=lambda contour: cv2.contourArea(contour))
     return output[len(output) - 1::]

@@ -17,7 +17,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-ip='127.0.0.1'
+ip='10.59.90.2'
 
 NetworkTables.initialize(server=ip)
 

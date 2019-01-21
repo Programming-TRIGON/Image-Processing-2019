@@ -18,7 +18,7 @@ class RetroflectorFinder(TargetFinder):
                                              self.reflector_filter],
                                     parameters=[[500],
                                                 [RetroflectorConstants.rotated_rec_min_ratio], []],
-                                    directions_function=,
+                                    directions_function= Directions.x_center_directions,
                                     connection_dst=robot_ip, port='ImageProcessing')
 
     def reflector_filter(self, rotated_contour):
@@ -36,8 +36,6 @@ class RetroflectorFinder(TargetFinder):
                 results.append((left, right))
 
         return results
-
-    def
 
     def enable(self):
         self.vision.start(print_results=False)
