@@ -11,7 +11,7 @@ class HatchVisionProcessing(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        hatch_color = Color.Color(low=[0, 50, 131], high=[44, 143, 244])
+        hatch_color = Color.Color(low=[17, 0, 201], high=[48, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=hatch_color,
                                     filters=[Filters.area_filter, size_filter],
                                     parameters=[[200], []],
