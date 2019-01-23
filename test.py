@@ -25,7 +25,7 @@ def solidity_filter(contour_list, solidity):
     return output
 
 
-CAMERA_PORT = 0
+CAMERA_PORT = 1
 ROBOT_IP = '127.0.0.1'
 
 # hatch_finder = HatchVisionProcessing(CAMERA_PORT, ROBOT_IP)
@@ -35,10 +35,10 @@ ROBOT_IP = '127.0.0.1'
 some_color = Color.Color(low=[10, 48, 0], high=[29, 255, 170])
 some_color2 = Color.Color(low=[10, 165, 149], high=[19, 255, 255])
 #
-v = Vision.Vision(camera_port=0, color=some_color,
+v = Vision.Vision(camera_port=1, color=some_color,
                   filters=[Filters.area_filter], parameters=[[]], connection_dst=ROBOT_IP)
 #
-conts, img = v.apply_sample(camera_port=0)
+conts, img = v.apply_sample(camera_port=1)
 print('found {} contours'.format(len(conts)))
 v.display_contours(img)
 cv2.waitKey()

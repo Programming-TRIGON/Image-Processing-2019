@@ -9,8 +9,8 @@ class CameraConstants:
 
     port_matrix = {'top_left': __name_format.format(2),
                    'top_right': __name_format.format(4),
-                   'bottom_left': __name_format.format(3),
-                   'bottom_right': __name_format.format(5)
+                   'bottom_left': __name_format.format(5),
+                   'bottom_right': __name_format.format(3)
                    }
 
 

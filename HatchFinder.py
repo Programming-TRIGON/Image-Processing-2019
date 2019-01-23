@@ -6,12 +6,11 @@ from ovl_eshel.Code import Filters
 import cv2
 
 
-
 class HatchVisionProcessing(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        hatch_color = Color.Color(low=[17, 0, 201], high=[48, 255, 255])
+        hatch_color = Color.Color(low=[18, 87, 82], high=[47, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=hatch_color,
                                     filters=[Filters.area_filter, size_filter],
                                     parameters=[[200], []],

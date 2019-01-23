@@ -12,9 +12,9 @@ ROBOT_IP = '10.59.90.2'
 logging.basicConfig(level=logging.DEBUG)
 
 targetFinders = {
-    # 'cargo': CargoFinder(0, ROBOT_IP),
+    'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     # 'retro': RetroflectorFinder(0, ROBOT_IP),
-    'hatch': HatchVisionProcessing(CameraConstants.port_matrix['bottom_right'], ROBOT_IP)
+    'hatch': HatchVisionProcessing(CameraConstants.port_matrix['bottom_left'], ROBOT_IP)
 }
 
 try:
