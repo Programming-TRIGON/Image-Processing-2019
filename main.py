@@ -15,6 +15,8 @@ targetFinders = {
     'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     # 'retro': RetroflectorFinder(0, ROBOT_IP),
     'hatch': HatchVisionProcessing(CameraConstants.port_matrix['bottom_left'], ROBOT_IP)
+
+    # Bag: 'cargo' and 'hatch' cant get the same camera because the program trying to open the same camera twice!
 }
 
 try:

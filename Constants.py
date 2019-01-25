@@ -3,6 +3,7 @@ class RetroflectorConstants:
 
     rotated_rec_min_ratio = 0.8
 
+
 class CameraConstants:
 
     __name_format = '/dev/v4l/by-path/platform-3f980000.usb-usb-0:1.{}:1.0-video-index0'

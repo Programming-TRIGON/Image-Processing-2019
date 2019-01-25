@@ -5,6 +5,7 @@ from ovl_eshel.Code import Directions
 from ovl_eshel.Code import Filters
 import cv2
 
+
 class CargoFinder(TargetFinder):
     cargo_hsv = Color.Color(low=[0, 115, 107], high=[25, 255, 255])
 

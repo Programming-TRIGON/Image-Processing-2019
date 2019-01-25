@@ -1,5 +1,6 @@
 from threading import Thread
 
+
 class VisionManager:
     visionThread = Thread()
 
@@ -35,7 +36,6 @@ class VisionManager:
                 if value in self.targetDict:
                     print('target is now {}'.format(value))
                     self.cancelTargetFinder()  # cancel current targetFinder
-
                     self.targetFinder = self.targetDict[value]
                 else:
                     raise KeyError("target from nt does not exist!")
