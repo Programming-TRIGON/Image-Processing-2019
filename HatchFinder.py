@@ -3,7 +3,8 @@ from ovl_eshel.Code import Vision
 from ovl_eshel.Code import Color
 from ovl_eshel.Code import Directions
 from ovl_eshel.Code import Filters
-import cv2
+from cv2 import convexHull
+from cv2 import contourArea
 
 
 class HatchVisionProcessing(TargetFinder):
@@ -27,9 +28,9 @@ class HatchVisionProcessing(TargetFinder):
 def solidity_filter(contour_list, solidity):
     output = []
     for contour in contour_list:
-        area = cv2.contourArea(contour)
-        hull = cv2.convexHull(contour)
-        solid = 100 * area / cv2.contourArea(hull)
+        area = contourArea(contour)
+        hull = convexHull(contour)
+        solid = 100 * area / contourArea(hull)
         if (solid < solidity[0] or solid > solidity[1]):
             continue
         output.append(contour)
@@ -38,7 +39,7 @@ def solidity_filter(contour_list, solidity):
 
 def size_filter(contour_list):
     output = contour_list
-    output.sort(key=lambda contour: cv2.contourArea(contour))
+    output.sort(key=lambda contour: contourArea(contour))
     return output[len(output) - 1::]
 
 

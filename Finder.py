@@ -6,19 +6,20 @@ from ovl_eshel.Code import Filters
 from cv2 import contourArea
 
 
-class CargoFinder(TargetFinder):
-    cargo_hsv = Color.Color(low=[0, 115, 107], high=[25, 255, 255])
+class Finder(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        self.vision = Vision.Vision(camera_port=camera_port, color=Color.BuiltInColors.red_hsv,
+
+        self.vision = Vision.Vision(camera_port=camera_port,
                                     filters=[Filters.area_filter, size_filter],
                                     parameters=[[300], []],
                                     directions_function=Directions.xy_center_directions, target_amount=1,
                                     connection_dst=robot_ip, port='CargoDirection')
 
-    def enable(self):
-        self.vision.start(print_results=False)
+    def enable(self, target_color):
+
+        self.vision.start(print_results=False, color=target_color)
 
     def disable(self):
         self.vision.stop()
