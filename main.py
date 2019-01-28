@@ -2,10 +2,9 @@ from networktables import NetworkTables
 from VisionManager import VisionManager
 import logging
 import time
-from ovl_eshel.Code import Color
 from CargoFinder import CargoFinder
-# from RetroflectorFinder import RetroflectorFinder
-from HatchFinder import HatchVisionProcessing
+from ReflectorFinder import ReflectorFinder
+from HatchFinder import HatchFinder
 from Constants import CameraConstants
 
 ROBOT_IP = '10.59.90.2'
@@ -13,11 +12,9 @@ ROBOT_IP = '10.59.90.2'
 logging.basicConfig(level=logging.DEBUG)
 
 targetFinders = {
-    # 'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
-    # 'retro': RetroflectorFinder(0, ROBOT_IP),
-    # 'hatch': HatchVisionProcessing(CameraConstants.port_matrix['bottom_left'], ROBOT_IP)
-    'cargo': Color.Color(low=[18, 87, 82], high=[47, 255, 255]),
-    'hatch': Color.Color(low=[0, 115, 107], high=[25, 255, 255])
+    'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
+    'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
+    'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
     # Bag: 'cargo' and 'hatch' cant get the same camera because the program trying to open the same camera twice!
 }
 

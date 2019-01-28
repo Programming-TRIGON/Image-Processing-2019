@@ -7,7 +7,7 @@ from cv2 import convexHull
 from cv2 import contourArea
 
 
-class HatchVisionProcessing(TargetFinder):
+class HatchFinder(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
