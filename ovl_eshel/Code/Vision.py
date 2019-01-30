@@ -307,7 +307,7 @@ class Vision(object):
         self.is_running = True
 
     def stop(self):
-        print('stopped')
+        print('stopping vision')
         if self.camera is not None:
             self.camera.release()
             self.camera = None
@@ -596,7 +596,8 @@ class Vision(object):
         if type(port) not in [int, str]:
             port = 0
         # self.camera_port = port
-        robot_cam = cv2.VideoCapture(port)
+        print('connecting to camera {}'.format(self.camera_port))
+        robot_cam = cv2.VideoCapture(self.camera_port)
         # If there was a problem opening the camera, exit
         if not robot_cam.isOpened():
             raise Exception("An error has occurred! "
@@ -749,8 +750,7 @@ class Vision(object):
         :param amend: If Bad frames should be amended by using previous values.
         :return: None
         """
-        if self.camera is None:
-            self.camera_setup(self.camera_port, self.width, self.height)
+
 
         previous_result = None
         streak = Vision.DoubleStack()
@@ -819,14 +819,8 @@ class Vision(object):
         :return: None
         """
         print_results = kwargs.get('print_results', False)
-        if "camera" in kwargs:
-            port, width, height = kwargs["camera"]
-        elif "cam" in kwargs:
-            port, width, height = kwargs["cam"]
-        else:
-            port, width, height = 0, self.width, self.height
-        if type(self.camera) is not cv2.VideoCapture:
-            self.camera_setup(port, img_width=width, img_height=height)
+        if self.camera is None:
+            self.camera_setup(self.camera_port, self.width, self.height)
         self.is_running = True
         self.frame_loop(print_results=print_results)
 
