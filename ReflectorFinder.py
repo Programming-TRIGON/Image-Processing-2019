@@ -3,6 +3,7 @@ from ovl_eshel.Code import Vision
 from ovl_eshel.Code import Filters
 from ovl_eshel.Code import Color
 from ovl_eshel.Code import Directions
+from subprocess import call
 from cv2 import contourArea
 from cv2 import minAreaRect
 
@@ -23,6 +24,16 @@ class ReflectorFinder(TargetFinder):
 
     def disable(self):
         self.vision.stop()
+
+    def set_exposure(self, exposure):
+        call(['v4l2-ctl', self.camera_port, '-c',
+              'exposure_auto=1', '-c', 'exposure_absolute={}'.format(safe_format(exposure))])
+
+
+def safe_format(x):
+    if x is None:
+        return 0
+    return x
 
 
 def size_filter(contour_list):
