@@ -227,7 +227,10 @@ class Vision(object):
         self.camera = None
         self.camera_port = None
         if 'camera_port' in kwargs:
-            self.camera_setup(kwargs['camera_port'])
+            self.camera_port = kwargs['camera_port']
+            # self.camera_setup(kwargs['camera_port'])
+            # camera should only be set up when the tracking starts
+            # to allow multiple VisionTrackers to use the same camera
 
         self.directions = directions_function
 
@@ -305,6 +308,9 @@ class Vision(object):
 
     def stop(self):
         print('stopped')
+        if self.camera is not None:
+            self.camera.release()
+            self.camera = None
         self.is_running = False
 
     def apply_sorter(self, sorter_function=Sorters.descending_area_sort):
@@ -589,7 +595,7 @@ class Vision(object):
             img_width = self.width
         if type(port) not in [int, str]:
             port = 0
-        self.camera_port = port
+        # self.camera_port = port
         robot_cam = cv2.VideoCapture(port)
         # If there was a problem opening the camera, exit
         if not robot_cam.isOpened():
@@ -743,6 +749,9 @@ class Vision(object):
         :param amend: If Bad frames should be amended by using previous values.
         :return: None
         """
+        if self.camera is None:
+            self.camera_setup(self.camera_port, self.width, self.height)
+
         previous_result = None
         streak = Vision.DoubleStack()
         while self.is_running:
