@@ -1,4 +1,5 @@
 # Copyright 2018 Ori Ben-Moshe - All rights reserved.
+import subprocess
 from socket import *
 from numpy import copy, vstack, hstack, ndarray
 from .Color import Color, BuiltInColors, MultiColor
@@ -581,6 +582,12 @@ class Vision(object):
         else:
             return directions_function(target_contours, amount, (self.width, self.height))
 
+    def getCamIndex(self, symlink):
+        cam_id = str(subprocess.check_output("file {}".format(symlink), shell=True))
+        print(cam_id)
+        print('cam id:', cam_id)
+        return int(cam_id[-4])
+
     def camera_setup(self, port=0, img_width=None, img_height=None):
         """
         Action: Opens up the camera reference and fixates a given width and height to all images taken
@@ -596,6 +603,9 @@ class Vision(object):
         if type(port) not in [int, str]:
             port = 0
         # self.camera_port = port
+        if type(self.camera_port) == type('esh'):
+            print('getting camId')
+            self.camera_port = self.getCamIndex(self.camera_port)
         print('connecting to camera {}'.format(self.camera_port))
         robot_cam = cv2.VideoCapture(self.camera_port)
         # If there was a problem opening the camera, exit
