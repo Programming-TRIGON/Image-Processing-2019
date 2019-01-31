@@ -36,7 +36,7 @@ class VisionManager:
                 if value in self.targetDict:
                     print('target is now {}'.format(value))
                     self.cancelTargetFinder()  # cancel current targetFinder
-                    time.sleep(1)
+                    # time.sleep(1)
                     self.targetFinder = self.targetDict[value]
                 else:
                     print("target from nt does not exist!")

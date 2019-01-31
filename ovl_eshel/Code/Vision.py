@@ -641,10 +641,11 @@ class Vision(object):
         :return: the image (numpy array) and the contours found (list of numpy arrays)
         """
 
-        def cam_port_activate(port_val, color, wid, hgt):
+        def cam_port_activate(port_val, color=self.color, wid=self.width, hgt=self.height):
             if self.camera is None:
                 self.camera_setup(port_val, img_width=wid, img_height=hgt)
             return_val, image = self.camera.read()
+            self.stop() # to close the camera
             if return_val:
                 self.contours = self.get_contours(image, color)
                 self.apply_all_filters()
@@ -696,7 +697,7 @@ class Vision(object):
         elif "picture" in kwargs:
             contours, img = image_activate(kwargs["picture"], color_object)
         else:
-            raise ValueError("No image or camera port given!")
+            contours, img = image_activate(self.camera_address)
 
         if display is not None:
             image_for_display = copy.copy(img)
