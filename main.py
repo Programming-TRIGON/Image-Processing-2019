@@ -39,11 +39,11 @@ try:
 
     lastThread = ''
     while True:
-        #time.sleep(1)
-        # print(sd.getNumber('robotTime', 999))
-        lastThread = visionManager.visionThread.getName()
-        if visionManager.visionThread.getName() != lastThread:
-            print(visionManager.visionThread.getName())
+        # Find out which VisionTracker is running in the vision thread (to make sure the threads were ending... ):
+        # lastThread = visionManager.visionThread.getName()
+        # if visionManager.visionThread.getName() != lastThread:
+        #     print(visionManager.visionThread.getName())
+        pass
 
 finally:
     visionManager.end()

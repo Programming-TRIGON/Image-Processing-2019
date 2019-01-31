@@ -226,9 +226,13 @@ class Vision(object):
         self.socket = socket(AF_INET, SOCK_DGRAM)
 
         self.camera = None
-        self.camera_port = None
+        self.camera_address = None
+        self.camera_id = None
         if 'camera_port' in kwargs:
-            self.camera_port = kwargs['camera_port']
+            if kwargs['camera_port'] is int:
+                self.camera_id = kwargs['camera_port']
+            else:
+                self.camera_address = kwargs['camera_port']
             # self.camera_setup(kwargs['camera_port'])
             # camera should only be set up when the tracking starts
             # to allow multiple VisionTrackers to use the same camera
@@ -508,7 +512,7 @@ class Vision(object):
                                  self.height,
                                  self.hostname,
                                  self.network_port,
-                                 self.camera_port).replace('#', str(self.failed_value)) \
+                                 self.camera_address).replace('#', str(self.failed_value)) \
             .replace('$', self.saturation_weight_vector.__repr__) \
             .replace('^', self.value_weight_vector.__repr__)
 
@@ -554,7 +558,7 @@ class Vision(object):
                                  self.color.__repr__(),
                                  self.connection_address,
                                  self.network_port,
-                                 self.camera_port,
+                                 self.camera_address,
                                  self.width,
                                  self.height,
                                  self.directions_function.__name__,
@@ -600,14 +604,13 @@ class Vision(object):
             img_height = self.height
         if img_width is None:
             img_width = self.width
-        if type(port) not in [int, str]:
-            port = 0
+
         # self.camera_port = port
-        if type(self.camera_port) == type('esh'):
-            print('getting camId')
-            self.camera_port = self.getCamIndex(self.camera_port)
-        print('connecting to camera {}'.format(self.camera_port))
-        robot_cam = cv2.VideoCapture(self.camera_port)
+        if self.camera_address is not None:
+            print('getting camera_id')
+            self.camera_id = self.getCamIndex(self.camera_address)
+        print('connecting to camera {} at {}'.format(self.camera_id, self.camera_address))
+        robot_cam = cv2.VideoCapture(self.camera_id)
         # If there was a problem opening the camera, exit
         if not robot_cam.isOpened():
             raise Exception("An error has occurred! "
@@ -745,7 +748,7 @@ class Vision(object):
             r = self.apply_all_filters(apply_all)
             return self.contours, r
         else:
-            self.camera_setup(self.camera_port)
+            self.camera_setup(self.camera_address)
             print_pipe(self.log_path, 'Failed to get image')
 
     def frame_loop(self, apply_all=True, one_loop=False, print_results=False,
@@ -830,7 +833,7 @@ class Vision(object):
         """
         print_results = kwargs.get('print_results', False)
         if self.camera is None:
-            self.camera_setup(self.camera_port, self.width, self.height)
+            self.camera_setup(self.camera_address, self.width, self.height)
         self.is_running = True
         self.frame_loop(print_results=print_results)
 
@@ -883,7 +886,7 @@ class Vision(object):
                        'camera_information': pass_camera,
                        'network_information': pass_network}
         if pass_camera:
-            translation['camera_port'] = self.camera_port
+            translation['camera_port'] = self.camera_address
         if pass_network:
             translation['port'] = self.network_port
             translation['destination'] = self.roborio_name
