@@ -14,9 +14,8 @@ EXPOSURE = 0
 logging.basicConfig(level=logging.DEBUG)
 
 targetFinders = {
-    'cargo': CargoFinder(0, ROBOT_IP)
-    # 'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
-    # 'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
+    'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
+    'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     # 'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
     # Bag: 'cargo' and 'hatch' cant get the same camera because the program trying to open the same camera twice!
 }
@@ -44,7 +43,7 @@ try:
         # lastThread = visionManager.visionThread.getName()
         # if visionManager.visionThread.getName() != lastThread:
         #     print(visionManager.visionThread.getName())
-        pass
+        time.sleep(1)
 
 finally:
     visionManager.end()
