@@ -12,10 +12,10 @@ class ReflectorFinder(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        reflector_color = Color.Color(low=[44, 64, 128], high=[83, 255, 255])
+        reflector_color = Color.Color(low=[37, 59, 144], high=[119, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=reflector_color,
                                     filters=[Filters.area_filter, size_filter],
-                                    parameters=[[20], []],
+                                    parameters=[[200], []],
                                     directions_function=Directions.xy_center_directions, target_amount=2,
                                     connection_dst=robot_ip, port='ReflectorDirection')
 
@@ -39,7 +39,7 @@ def safe_format(x):
 def size_filter(contour_list):
     output = contour_list
     output.sort(key=lambda contour: contourArea(contour))
-    return output[len(output) - 2::]
+    return output[len(output) - 2:]
 
 
 def reflector_filter(self, rotated_contour):
