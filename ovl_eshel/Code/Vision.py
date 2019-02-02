@@ -1,4 +1,5 @@
 # Copyright 2018 Ori Ben-Moshe - All rights reserved.
+import subprocess
 from socket import *
 from numpy import copy, vstack, hstack, ndarray
 from .Color import Color, BuiltInColors, MultiColor
@@ -225,9 +226,16 @@ class Vision(object):
         self.socket = socket(AF_INET, SOCK_DGRAM)
 
         self.camera = None
-        self.camera_port = None
+        self.camera_address = None
+        self.camera_id = None
         if 'camera_port' in kwargs:
-            self.camera_setup(kwargs['camera_port'])
+            if kwargs['camera_port'] is int:
+                self.camera_id = kwargs['camera_port']
+            else:
+                self.camera_address = kwargs['camera_port']
+            # self.camera_setup(kwargs['camera_port'])
+            # camera should only be set up when the tracking starts
+            # to allow multiple VisionTrackers to use the same camera
 
         self.directions = directions_function
 
@@ -304,7 +312,10 @@ class Vision(object):
         self.is_running = True
 
     def stop(self):
-        print('stopped')
+        print('stopping vision')
+        if self.camera is not None:
+            self.camera.release()
+            self.camera = None
         self.is_running = False
 
     def apply_sorter(self, sorter_function=Sorters.descending_area_sort):
@@ -501,7 +512,7 @@ class Vision(object):
                                  self.height,
                                  self.hostname,
                                  self.network_port,
-                                 self.camera_port).replace('#', str(self.failed_value)) \
+                                 self.camera_address).replace('#', str(self.failed_value)) \
             .replace('$', self.saturation_weight_vector.__repr__) \
             .replace('^', self.value_weight_vector.__repr__)
 
@@ -547,7 +558,7 @@ class Vision(object):
                                  self.color.__repr__(),
                                  self.connection_address,
                                  self.network_port,
-                                 self.camera_port,
+                                 self.camera_address,
                                  self.width,
                                  self.height,
                                  self.directions_function.__name__,
@@ -575,6 +586,12 @@ class Vision(object):
         else:
             return directions_function(target_contours, amount, (self.width, self.height))
 
+    def getCamIndex(self, symlink):
+        cam_id = str(subprocess.check_output("file {}".format(symlink), shell=True))
+        print(cam_id)
+        print('cam id:', cam_id)
+        return int(cam_id[-4])
+
     def camera_setup(self, port=0, img_width=None, img_height=None):
         """
         Action: Opens up the camera reference and fixates a given width and height to all images taken
@@ -587,10 +604,13 @@ class Vision(object):
             img_height = self.height
         if img_width is None:
             img_width = self.width
-        if type(port) not in [int, str]:
-            port = 0
-        self.camera_port = port
-        robot_cam = cv2.VideoCapture(port)
+
+        # self.camera_port = port
+        if self.camera_address is not None:
+            print('getting camera_id')
+            self.camera_id = self.getCamIndex(self.camera_address)
+        print('connecting to camera {} at {}'.format(self.camera_id, self.camera_address))
+        robot_cam = cv2.VideoCapture(self.camera_id)
         # If there was a problem opening the camera, exit
         if not robot_cam.isOpened():
             raise Exception("An error has occurred! "
@@ -621,10 +641,11 @@ class Vision(object):
         :return: the image (numpy array) and the contours found (list of numpy arrays)
         """
 
-        def cam_port_activate(port_val, color, wid, hgt):
+        def cam_port_activate(port_val, color=self.color, wid=self.width, hgt=self.height):
             if self.camera is None:
                 self.camera_setup(port_val, img_width=wid, img_height=hgt)
             return_val, image = self.camera.read()
+            self.stop() # to close the camera
             if return_val:
                 self.contours = self.get_contours(image, color)
                 self.apply_all_filters()
@@ -676,7 +697,7 @@ class Vision(object):
         elif "picture" in kwargs:
             contours, img = image_activate(kwargs["picture"], color_object)
         else:
-            raise ValueError("No image or camera port given!")
+            contours, img = image_activate(self.camera_address)
 
         if display is not None:
             image_for_display = copy.copy(img)
@@ -728,7 +749,7 @@ class Vision(object):
             r = self.apply_all_filters(apply_all)
             return self.contours, r
         else:
-            self.camera_setup(self.camera_port)
+            self.camera_setup(self.camera_address)
             print_pipe(self.log_path, 'Failed to get image')
 
     def frame_loop(self, apply_all=True, one_loop=False, print_results=False,
@@ -743,6 +764,8 @@ class Vision(object):
         :param amend: If Bad frames should be amended by using previous values.
         :return: None
         """
+
+
         previous_result = None
         streak = Vision.DoubleStack()
         while self.is_running:
@@ -810,14 +833,8 @@ class Vision(object):
         :return: None
         """
         print_results = kwargs.get('print_results', False)
-        if "camera" in kwargs:
-            port, width, height = kwargs["camera"]
-        elif "cam" in kwargs:
-            port, width, height = kwargs["cam"]
-        else:
-            port, width, height = 0, self.width, self.height
-        if type(self.camera) is not cv2.VideoCapture:
-            self.camera_setup(port, img_width=width, img_height=height)
+        if self.camera is None:
+            self.camera_setup(self.camera_address, self.width, self.height)
         self.is_running = True
         self.frame_loop(print_results=print_results)
 
@@ -870,7 +887,7 @@ class Vision(object):
                        'camera_information': pass_camera,
                        'network_information': pass_network}
         if pass_camera:
-            translation['camera_port'] = self.camera_port
+            translation['camera_port'] = self.camera_address
         if pass_network:
             translation['port'] = self.network_port
             translation['destination'] = self.roborio_name

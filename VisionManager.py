@@ -1,5 +1,5 @@
 from threading import Thread
-
+import time
 
 class VisionManager:
     visionThread = Thread()
@@ -30,17 +30,19 @@ class VisionManager:
         :rtype:
         """
         print('val changed')
-        print(table, key, value, isNew)
+        print(table, key, value)
         if str(table) == 'NetworkTable: /ImageProcessing/':
             if key == 'target':
                 if value in self.targetDict:
                     print('target is now {}'.format(value))
                     self.cancelTargetFinder()  # cancel current targetFinder
+                    # time.sleep(1)
                     self.targetFinder = self.targetDict[value]
                 else:
-                    raise KeyError("target from nt does not exist!")
+                    print("target from nt does not exist!")
 
                 self.visionThread = Thread(target=self.targetFinder.enable)
+                self.visionThread.setName(self.targetDict[value])
                 self.visionThread.start()
 
     def end(self):
@@ -49,5 +51,8 @@ class VisionManager:
     def cancelTargetFinder(self):
         if self.targetFinder is not None:
             self.targetFinder.disable()
+            print(self.targetFinder.vision.is_running)
         if self.visionThread.is_alive():
+            print('thread is alive')
             self.visionThread.join()
+            print('thread joined')
