@@ -9,14 +9,14 @@ from Constants import CameraConstants
 from subprocess import call
 
 ROBOT_IP = '10.59.90.2'
-EXPOSURE = 0
+EXPOSURE = 5
 
 logging.basicConfig(level=logging.DEBUG)
 
 targetFinders = {
     'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
-    # 'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
+    'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
     # Bag: 'cargo' and 'hatch' cant get the same camera because the program trying to open the same camera twice!
 }
 
@@ -34,7 +34,7 @@ try:
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-    #call(['v4l2-ctl', CameraConstants.port_matrix['top_right'], '-c', 'exposure_auto=1', '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
     # set camera exposure... I think we should change that
 
     lastThread = ''
@@ -43,9 +43,10 @@ try:
         # lastThread = visionManager.visionThread.getName()
         # if visionManager.visionThread.getName() != lastThread:
         #     print(visionManager.visionThread.getName())
-        time.sleep(1)
+        time.sleep(1000000) # This while loop wont interfere the vision code EVER!
 
 finally:
+    visionManager = VisionManager(targetFinders)
     visionManager.end()
 
 

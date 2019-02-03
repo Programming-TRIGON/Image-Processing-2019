@@ -16,7 +16,7 @@ class ReflectorFinder(TargetFinder):
         self.vision = Vision.Vision(camera_port=camera_port, color=reflector_color,
                                     filters=[Filters.area_filter, size_filter],
                                     parameters=[[20], []],
-                                    directions_function=Directions.xy_center_directions, target_amount=2,
+                                    directions_function=Directions.xy_center_directions, target_amount=1,
                                     connection_dst=robot_ip, port='ReflectorDirection')
 
     def enable(self):
