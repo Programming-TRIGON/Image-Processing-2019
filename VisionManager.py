@@ -33,13 +33,13 @@ class VisionManager:
         print(table, key, value)
         if str(table) == 'NetworkTable: /ImageProcessing/':
             if key == 'target':
-                if value in self.targetDict:
+                if value in self.targetDict.keys():
                     print('target is now {}'.format(value))
                     self.cancelTargetFinder()  # cancel current targetFinder
                     # time.sleep(1)
                     self.targetFinder = self.targetDict[value]
                 else:
-                    print("target from nt does not exist!")
+                    print("{} target from nt does not exist!".format(value))
 
                 self.visionThread = Thread(target=self.targetFinder.enable)
                 self.visionThread.setName(self.targetDict[value])

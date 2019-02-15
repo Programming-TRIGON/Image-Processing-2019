@@ -6,7 +6,6 @@ from .Color import Color, BuiltInColors, MultiColor
 from .General import *
 from . import Sorters
 import time
-from matplotlib.pyplot import figure, show, imshow
 import copy
 from inspect import getmembers, isfunction
 import cv2
@@ -356,7 +355,8 @@ class Vision(object):
         """
         if print_results:
             print_pipe(self.log_path,
-                   'Before "%": '.replace('%', filter_function.__name__.replace('_', ' ')) + str(len(self.contours)))
+                       'Before "%": '.replace('%', filter_function.__name__.replace('_', ' ')) + str(
+                           len(self.contours)))
         if self.__params is not None or parameters is not None:
             if parameters is not None:
                 parameters_list = parameters.copy()
@@ -383,6 +383,7 @@ class Vision(object):
             self.contours = output
         if print_results:
             print_pipe(self.log_path, 'After %: '.replace('%', filter_function.__name__) + str(len(output)))
+
         return output, ratio
 
     def apply_all_filters(self, apply_all=True, print_results=False):

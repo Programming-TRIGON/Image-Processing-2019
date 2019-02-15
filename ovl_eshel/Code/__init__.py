@@ -1,7 +1,7 @@
 from . import Vision
 from . import Color
 from . import General
-from . import Calibration
+# from . import Calibration
 from . import Drawing
 from . import Geometry
 from . import Sorters

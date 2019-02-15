@@ -9,7 +9,7 @@ from Constants import CameraConstants
 from subprocess import call
 
 ROBOT_IP = '10.59.90.2'
-EXPOSURE = 12
+EXPOSURE = 0
 
 
 logging.basicConfig(level=logging.DEBUG)

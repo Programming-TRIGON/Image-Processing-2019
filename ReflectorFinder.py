@@ -12,10 +12,10 @@ class ReflectorFinder(TargetFinder):
 
     def __init__(self, camera_port, robot_ip):
         super().__init__(camera_port)
-        reflector_color = Color.Color(low=[37, 59, 144], high=[119, 255, 255])
+        reflector_color = Color.Color(low=[74, 101, 92], high=[92, 255, 255])
         self.vision = Vision.Vision(camera_port=camera_port, color=reflector_color,
                                     filters=[Filters.area_filter, size_filter],
-                                    parameters=[[200], []],
+                                    parameters=[[15], []],
                                     directions_function=Directions.xy_center_directions, target_amount=2,
                                     connection_dst=robot_ip, port='ReflectorDirection')
 
