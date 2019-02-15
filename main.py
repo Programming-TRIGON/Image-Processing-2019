@@ -11,6 +11,7 @@ from subprocess import call
 ROBOT_IP = '10.59.90.2'
 EXPOSURE = 12
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 targetFinders = {
@@ -36,6 +37,8 @@ try:
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
+    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+    # set camera exposure... I think we should change that
 
 
     lastThread = ''
@@ -44,9 +47,10 @@ try:
         # lastThread = visionManager.visionThread.getName()
         # if visionManager.visionThread.getName() != lastThread:
         #     print(visionManager.visionThread.getName())
-        time.sleep(1)
+        time.sleep(1000000) # This while loop wont interfere the vision code EVER!
 
 finally:
+    visionManager = VisionManager(targetFinders)
     visionManager.end()
 
 
