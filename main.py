@@ -37,7 +37,8 @@ try:
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+    #(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+    call(['v4l2-ctl', '-d', 0, '-c', 'exposure_auto=1', '-c', 'exposure_absolute=0'])
     # set camera exposure... I think we should change that
 
 
