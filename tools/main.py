@@ -30,15 +30,15 @@ def safe_format(x):
 
 try:
     # set camera exposure... I think we should change that
-    call(['v4l2-ctl', '-d', '0', '-c', 'exposure_auto=1', '-c', 'exposure_absolute={}'.format(EXPOSURE)])
+    call(['v4l2-ctl', '-d', 0, '-c', 'exposure_auto=1' '-c', 
+          'exposure_absolute={}'.format(safe_format(EXPOSURE))])
 
     visionManager = VisionManager(targetFinders)
     NetworkTables.initialize(server=ROBOT_IP)
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-    #(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
-    call(['v4l2-ctl', '-d', 0, '-c', 'exposure_auto=1', '-c', 'exposure_absolute=0'])
+    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
     # set camera exposure... I think we should change that
 
 
