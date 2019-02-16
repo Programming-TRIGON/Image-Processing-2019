@@ -8,6 +8,7 @@ from HatchFinder import HatchFinder
 from Constants import CameraConstants
 from subprocess import call
 
+
 ROBOT_IP = '10.59.90.2'
 EXPOSURE = 0
 
@@ -29,15 +30,13 @@ def safe_format(x):
 
 
 try:
-    call(['v4l2-ctl', '-d', '0', '-c', 'exposure_auto=1', '-c', 'exposure_absolute={}'.format(EXPOSURE)])
-
     visionManager = VisionManager(targetFinders)
     NetworkTables.initialize(server=ROBOT_IP)
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
-    # set camera exposure... I think we should change that
+    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_auto=1',
+          '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
 
 
     lastThread = ''

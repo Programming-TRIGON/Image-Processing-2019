@@ -18,22 +18,13 @@ class ReflectorFinder(TargetFinder):
                                     parameters=[[15], []],
                                     directions_function=Directions.xy_center_directions, target_amount=2,
                                     connection_dst=robot_ip, port='ReflectorDirection')
+        self.set_exposure(self.vision.get_camera_index(self.camera_port), 0)
 
     def enable(self):
         self.vision.start(print_results=False)
 
     def disable(self):
         self.vision.stop()
-
-    def set_exposure(self, exposure):
-        call(['v4l2-ctl', self.camera_port, '-c',
-              'exposure_auto=1', '-c', 'exposure_absolute={}'.format(safe_format(exposure))])
-
-
-def safe_format(x):
-    if x is None:
-        return 0
-    return x
 
 
 def size_filter(contour_list):
