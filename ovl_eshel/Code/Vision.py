@@ -587,7 +587,8 @@ class Vision(object):
         else:
             return directions_function(target_contours, amount, (self.width, self.height))
 
-    def getCamIndex(self, symlink):
+    @staticmethod
+    def get_camera_index(symlink):
         cam_id = str(subprocess.check_output("file {}".format(symlink), shell=True))
         print(cam_id)
         print('cam id:', cam_id)
@@ -609,7 +610,7 @@ class Vision(object):
         # self.camera_port = port
         if self.camera_address is not None:
             print('getting camera_id')
-            self.camera_id = self.getCamIndex(self.camera_address)
+            self.camera_id = self.get_camera_index(self.camera_address)
         print('connecting to camera {} at {}'.format(self.camera_id, self.camera_address))
         robot_cam = cv2.VideoCapture(self.camera_id)
         # If there was a problem opening the camera, exit
@@ -631,87 +632,6 @@ class Vision(object):
                                "Please make sure you are using one of those versions")
         self.camera = robot_cam
         return robot_cam
-
-    def apply_sample(self, **kwargs):
-        """
-        Action: Finds contours and applies filters on a single image given by a image path, image object (numpy array)
-        or camera port and takes an image, a custom color can be passed through the kw color.
-        the kw display/show determines how the result is displayed, None will not display, False with imshow, True with
-        matlplotlib.
-        :param kwargs:
-        :return: the image (numpy array) and the contours found (list of numpy arrays)
-        """
-
-        def cam_port_activate(port_val, color=self.color, wid=self.width, hgt=self.height):
-            if self.camera is None:
-                self.camera_setup(port_val, img_width=wid, img_height=hgt)
-            return_val, image = self.camera.read()
-            self.stop() # to close the camera
-            if return_val:
-                self.contours = self.get_contours(image, color)
-                self.apply_all_filters()
-            else:
-                print_pipe(self.log_path, "Something went wrong with getting the sample image!")
-            return self.contours, image
-
-        def image_activate(image_loc, color):
-            if type(image_loc) is str:
-                image = cv2.imread(image_loc, cv2.IMREAD_COLOR)
-            else:
-                image = image_loc
-                self.contours = self.get_contours(image, color)
-                self.apply_all_filters()
-            return self.contours, image
-
-        multi_mode = False
-        if "color" in kwargs:
-            color_object = kwargs["color"]
-            if type(color_object) is MultiColor:
-                multi_mode = True
-        elif "hsv_low_limit" in kwargs and "hsv_high_limit" in kwargs:
-            color_object = Color(kwargs["hsv_low_limit"], kwargs["hsv_high_limit"])
-        else:
-            if type(self.color) is MultiColor:
-                multi_mode = True
-            color_object = self.color
-
-        if "display" in kwargs:
-            display = kwargs["display"]
-        elif "show" in kwargs:
-            display = kwargs["show"]
-        else:
-            display = None
-
-        # TODO shouldn't need to give it a cam port. Vision has a camera property!
-        if "camera_port" in kwargs:
-            port = kwargs["camera_port"]
-            contours, img = cam_port_activate(port, color_object, self.width, self.height)
-        elif "port" in kwargs:
-            port = kwargs["port"]
-            contours, img = cam_port_activate(port, color_object, self.width, self.height)
-        elif "image" in kwargs:
-            contours, img = image_activate(kwargs["image"], color_object)
-        elif "img" in kwargs:
-            contours, img = image_activate(kwargs["img"], color_object)
-        elif "pic" in kwargs:
-            contours, img = image_activate(kwargs["pic"], color_object)
-        elif "picture" in kwargs:
-            contours, img = image_activate(kwargs["picture"], color_object)
-        else:
-            contours, img = image_activate(self.camera_address)
-
-        if display is not None:
-            image_for_display = copy.copy(img)
-            drawn = cv2.drawContours(image_for_display, contours, -1, BuiltInColors.red_high_hsv.high_bound)
-            if display:
-                figure(str(time.time()))
-                image_for_display = cv2.cvtColor(drawn, cv2.COLOR_HSV2RGB)
-                imshow(image_for_display)
-                show()
-            else:
-                cv2.imshow(str(time.time()), image_for_display)
-                cv2.waitKey()
-        return contours, img
 
     # What the hell is this for?
     class DoubleStack:
