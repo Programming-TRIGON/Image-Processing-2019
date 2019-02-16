@@ -13,6 +13,7 @@ import json
 from networktables import NetworkTables
 from sys import version_info
 import numpy as np
+import re
 
 if version_info[0] == 3:
     xrange = range
@@ -589,10 +590,12 @@ class Vision(object):
 
     @staticmethod
     def get_camera_index(symlink):
-        cam_id = str(subprocess.check_output("file {}".format(symlink), shell=True))
-        print(cam_id)
-        print('cam id:', cam_id)
-        return int(cam_id[-4])
+        cam_path = subprocess.check_output("file {}".format(symlink), shell=True).decode('utf-8')
+        cam_id_match = re.search('video\d', cam_path)
+        if cam_id_match is None:
+            raise LookupError('problem getting cam index from path')
+        print('cam id:', '/dev/{}'.format(cam_id_match.group()))
+        return cam_id_match.group()
 
     def camera_setup(self, port=0, img_width=None, img_height=None):
         """
