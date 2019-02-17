@@ -291,23 +291,10 @@ class Vision(object):
             self.network_port = port
         else:
             raise ValueError("connection_dst must be a valid ip address")
-        # elif Vision.is_valid_ip(connection_dst):
-        #     if 0 < port < 65535:
-        #         self.network_port = port
-        #     else:
-        #         self.network_port = 0
-        #         raise TypeError("Invalid port number!")
-        #     try:
-        #         self.connection_address = connection_dst
-        #         self.socket.bind((connection_dst, port))
-        #     except Exception as e:
-        #         print_pipe(self.log_path, 'Failed to connect.', e)
-        # else:
-        #     try:
-        #         self.connection_address = gethostbyname(connection_dst)
-        #     except gaierror:
-        #         self.connection_address = False
-        #         raise ValueError('Cannot Find Roborio, check the connection or the RoboRio name!')
+
+        
+
+
 
         self.is_running = True
 
@@ -1060,3 +1047,4 @@ class Vision(object):
         :return: if return images is true, returns the images
         """
         return self.photo_array(amount, delay, name_convention, return_images, path)
+        #         self.connection_address = False
