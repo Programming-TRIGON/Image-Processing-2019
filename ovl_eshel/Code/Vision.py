@@ -595,7 +595,7 @@ class Vision(object):
         if cam_id_match is None:
             raise LookupError('problem getting cam index from path')
         print('cam id:', '/dev/{}'.format(cam_id_match.group()))
-        return cam_id_match.group()
+        return '/dev/{}'.format(cam_id_match.group())
 
     def camera_setup(self, port=0, img_width=None, img_height=None):
         """

@@ -35,8 +35,7 @@ try:
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-    call(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_auto=1',
-          '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+
 
 
     lastThread = ''
