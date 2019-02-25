@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.DEBUG)
 targetFinders = {
     'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
-    'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
-
+    'reflectorForward': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP),
+    'reflectorBackward': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
 }
 
 
