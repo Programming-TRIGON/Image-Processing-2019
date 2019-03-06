@@ -18,8 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 targetFinders = {
     'cargo': CargoFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
     'hatch': HatchFinder(CameraConstants.port_matrix['bottom_right'], ROBOT_IP),
-    'reflector': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
-
+    'reflectorForward': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP),
+    'reflectorBackward': ReflectorFinder(CameraConstants.port_matrix['top_right'], ROBOT_IP)
 }
 
 
@@ -35,7 +35,9 @@ try:
     sd = NetworkTables.getTable("ImageProcessing")
     sd.addEntryListener(visionManager.targetChanged, immediateNotify=True)
 
-
+    #(['v4l2-ctl', '-d', CameraConstants.port_matrix['top_right'], '-c', 'exposure_absolute={}'.format(safe_format(EXPOSURE))])
+    call(['v4l2-ctl', '-d', 0, '-c', 'exposure_auto=1', '-c', 'exposure_absolute=0'])
+    # set camera exposure... I think we should change that
 
 
     lastThread = ''
