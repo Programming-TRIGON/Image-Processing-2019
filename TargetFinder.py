@@ -1,3 +1,5 @@
+from subprocess import call
+
 class TargetFinder:
     """
     Each specific target finder class extends TargetFinder
@@ -8,3 +10,8 @@ class TargetFinder:
     def enable(self):raise NotImplementedError("implement me in child class!")
 
     def disable(self):raise NotImplementedError("implement me in child class!")
+
+    @staticmethod
+    def set_exposure(camera, exposure):
+        call(['v4l2-ctl', '-d', camera, '-c', 'exposure_auto=1',
+              '-c', 'exposure_absolute={}'.format(exposure)])
