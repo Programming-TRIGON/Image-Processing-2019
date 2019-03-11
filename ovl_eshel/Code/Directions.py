@@ -14,10 +14,8 @@ def validate(contour, target_amount):
     elif contour is []:
         return False
     elif type(contour) is ndarray and target_amount > 1:
-       return False
-#    elif type(contour) is list and len(contour) < target_amount:
-#        return False
-    elif type(contour) is list and len(contour) == 0:
+        return False
+    elif type(contour) is list and len(contour) < target_amount:
         return False
     else:
         return True

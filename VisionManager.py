@@ -12,6 +12,7 @@ class VisionManager:
         """
         self.targetDict = targets
         self.targetFinder = None
+        self.targetChanged('NetworkTable: /ImageProcessing/', 'target', 'reflectorForward', True)
 
     def targetChanged(self, table, key, value, isNew):
         """

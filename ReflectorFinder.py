@@ -18,7 +18,13 @@ class ReflectorFinder(TargetFinder):
                                     parameters=[[15], []],
                                     directions_function=Directions.xy_center_directions, target_amount=2,
                                     connection_dst=robot_ip, port='ReflectorDirection')
-        self.set_exposure(self.vision.get_camera_index(self.camera_port), 0)
+        try:
+            cam_index = self.vision.get_camera_index(self.camera_port)
+            self.set_exposure(cam_index, 0)
+        except LookupError as e:
+            print(e)
+            print('Exposure not set...')
+
 
     def enable(self):
         self.vision.start(print_results=False)
